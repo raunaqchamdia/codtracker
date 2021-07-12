@@ -79,14 +79,12 @@ try:
     #Check if you need to push to the DB
     newResult = str(akshatKD + oscarKD + neerajKD + aryanKD + raunaqKD)
     if newResult != lastResult:
-        change = True
+        #Write New Results
         file1 = open("./lastresult.txt",'w')
         file1.write(str(newResult))
         file1.close()
-
-    if change == True:
+        #Push New Results to DB
         val = ("bar", datetime.datetime.now(pytz.timezone('US/Central')), raunaqDMK, aryanDMK, neerajDMK, raunaqKD, aryanKD, neerajKD, oscarKD, akshatKD)
-
         cursor.execute(sql, val)
         db.commit()
         change = False
@@ -96,7 +94,6 @@ except mysql.connector.Error as error:
     db.rollback()
 finally:
     # closing database connection.
-
     if db.is_connected():
         cursor.close()
         db.close()
