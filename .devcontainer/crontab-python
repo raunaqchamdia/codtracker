@@ -1,0 +1,2 @@
+* * * * * python /workspace/test.py >> /workspace/log.txt
+

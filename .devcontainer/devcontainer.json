@@ -1,0 +1,16 @@
+{
+	"name": "Develop Python",
+	"dockerComposeFile": "docker-compose.yml",
+	"service": "dev",
+	"shutdownAction": "stopCompose",
+	"workspaceFolder": "/workspace",
+
+	"settings": { 
+		"terminal.integrated.shell.linux": "/bin/bash",
+		"python.pythonPath": "/usr/local/bin/python"
+	},
+	
+	"extensions": [
+		"ms-python.python"
+	]
+}

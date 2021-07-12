@@ -1,0 +1,48 @@
+version: "3.7"
+services:
+  dev:
+    dns:
+      - 8.8.8.8
+      - 4.4.4.4
+    build:
+      context: .
+      dockerfile: Dockerfile
+    command: sleep infinity
+    hostname: codupdater
+    volumes:
+        - ..:/workspace
+    labels:
+      - "traefik.enable=false"
+      - "traefik.http.routers.codupdater.entrypoints=web"
+  gra:
+    image: grafana/grafana
+    container_name: grafana
+    hostname: ass-slap
+    environment:
+      - GF_SECURITY_ALLOW_EMBEDDING=true
+      - GF_AUTH_ANONYMOUS_ENABLED=true
+      - GF_AUTH_ANONYMOUS_ORG_NAME=MainOrg
+      - GF_AUTH_ANONYMOUS_ORG_ROLE=Viewer
+      - GF_AUTH_OAUTH_AUTO_LOGIN=true
+    labels:
+      - "traefik.enable=true"
+      - "traefik.http.routers.ass-slap.entrypoints=websecure"
+      - "traefik.http.routers.ass-slap.rule=Host(`$MY_DOMAIN`)"
+      - "traefik.http.routers.ass-slap.tls.certresolver=lets-encr"
+    ports:
+        - "3000:3000"
+  db:
+    image: mysql
+    command: --default-authentication-plugin=mysql_native_password
+    environment:
+        MYSQL_ROOT_PASSWORD: example
+    volumes:
+      - ./data:/var/lib/mysql
+  adminer:
+    image: adminer
+    ports:
+        - 8080:8080
+networks:
+  default:
+    external:
+      name: $DEFAULT_NETWORK
