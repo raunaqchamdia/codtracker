@@ -29,7 +29,7 @@ try:
     #Create the DB or connect to the DB
     try:
         cursor.execute("CREATE DATABASE " + dbName)
-        cursor.execute("CREATE TABLE "+ tableName + " (id INT AUTO_INCREMENT PRIMARY KEY, metric VARCHAR(3), time TIMESTAMP, value FLOAT, value1 FLOAT, value2 FLOAT, valueK FLOAT, value1K FLOAT, value2K FLOAT, value3K, vaule4K, value5K)")
+        cursor.execute("CREATE TABLE "+ tableName + " (id INT AUTO_INCREMENT PRIMARY KEY, metric VARCHAR(3), time TIMESTAMP, value FLOAT, value1 FLOAT, value2 FLOAT, value3 FLOAT, value4 FLOAT, value5 FLOAT, valueK FLOAT, value1K FLOAT, value2K FLOAT, value3K, vaule4K, value5K, valueGKD)")
 
     except:
         db = mysql.connector.connect(
@@ -41,9 +41,9 @@ try:
         cursor = db.cursor()
 
     headers = {'User-Agent': 'Custom'}
-    sql = "INSERT INTO " + tableName + " (metric, time, value, value1, value2, valueK, value1K, value2K, value3k, value4K, value5K) VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s)"
+    sql = "INSERT INTO " + tableName + " (metric, time, value, value1, value2, value3, value4, value5, valueK, value1K, value2K, value3k, value4K, value5K, valueGKD) VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s)"
 
-    raunaqDMK, aryanDMK, neerajDMK = "A","A","A"
+    raunaqDMK, aryanDMK, neerajDMK, oscarKMD, akshatKMD, adityaKMD = "A", "A", "A", "A", "A", "A"
     raunaqKD, aryanKD, neerajKD, oscarKD, akshatKD, adityaKD = "A", "A", "A", "A", "A", "A"
 
     raunaqResult = requests.get(raunaqURL, headers=headers)
@@ -58,37 +58,39 @@ try:
     oscarData = oscarResult.json()["data"]["segments"]
     akshatData = akshatResult.json()["data"]["segments"]
     adityaData = adityaResult.json()["data"]["segments"]
-
     change = False
     try:
-        for i in range(len(raunaqData)):
-            if raunaqData[i]["type"] == "overview":
-                raunaqDMK = raunaqData[i]["stats"]["deaths"]["value"]-raunaqData[i]["stats"]["kills"]["value"]
-                raunaqKD = raunaqData[i]["stats"]["kills"]["value"]/raunaqData[i]["stats"]["deaths"]["value"]
-            if aryanData[i]["type"] == "overview":
-                aryanDMK  = aryanData[i]["stats"]["deaths"]["value"]-aryanData[i]["stats"]["kills"]["value"]
-                aryanKD = aryanData[i]["stats"]["kills"]["value"]/aryanData[i]["stats"]["deaths"]["value"]
-            if dataNgods[i]["type"] == "overview":
-                neerajDMK  = dataNgods[i]["stats"]["deaths"]["value"]-dataNgods[i]["stats"]["kills"]["value"]
-                neerajKD = dataNgods[i]["stats"]["kills"]["value"]/dataNgods[i]["stats"]["deaths"]["value"]
-            if oscarData[i]["type"] == "overview":
-                oscarKD = oscarData[i]["stats"]["kills"]["value"]/oscarData[i]["stats"]["deaths"]["value"]
-            if akshatData[i]["type"] == "overview":
-                akshatKD = akshatData[i]["stats"]["kills"]["value"]/akshatData[i]["stats"]["deaths"]["value"]
-            if adityaData[i]["type"] == "overview":
-                adityaKD = adityaData[i]["stats"]["kills"]["value"]/adityaData[i]["stats"]["deaths"]["value"]
+        if raunaqData[0]["type"] == "overview":
+            raunaqDMK = raunaqData[0]["stats"]["deaths"]["value"]-raunaqData[0]["stats"]["kills"]["value"]
+            raunaqKD = raunaqData[0]["stats"]["kills"]["value"]/raunaqData[0]["stats"]["deaths"]["value"]
+        if aryanData[0]["type"] == "overview":
+            aryanDMK  = aryanData[0]["stats"]["deaths"]["value"]-aryanData[0]["stats"]["kills"]["value"]
+            aryanKD = aryanData[0]["stats"]["kills"]["value"]/aryanData[0]["stats"]["deaths"]["value"]
+        if dataNgods[0]["type"] == "overview":
+            neerajDMK  = dataNgods[0]["stats"]["deaths"]["value"]-dataNgods[0]["stats"]["kills"]["value"]
+            neerajKD = dataNgods[0]["stats"]["kills"]["value"]/dataNgods[0]["stats"]["deaths"]["value"]
+        if oscarData[0]["type"] == "overview":
+            oscarKMD = oscarData[0]["stats"]["kills"]["value"]-oscarData[0]["stats"]["deaths"]["value"]
+            oscarKD = oscarData[0]["stats"]["kills"]["value"]/oscarData[0]["stats"]["deaths"]["value"]
+        if akshatData[0]["type"] == "overview":
+            akshatKMD = akshatData[0]["stats"]["kills"]["value"]-akshatData[0]["stats"]["deaths"]["value"]
+            akshatKD = akshatData[0]["stats"]["kills"]["value"]/akshatData[0]["stats"]["deaths"]["value"]
+        if adityaData[0]["type"] == "overview":
+            adityaKMD = adityaData[0]["stats"]["kills"]["value"]-adityaData[0]["stats"]["deaths"]["value"]
+            adityaKD = adityaData[0]["stats"]["kills"]["value"]/adityaData[0]["stats"]["deaths"]["value"]
     except Exception as ex:
         print(ex)
 
     #Check if you need to push to the DB
-    newResult = str(akshatKD + oscarKD + neerajKD + aryanKD + raunaqKD + adityaKD)
+    gKD = (akshatKD + oscarKD + neerajKD + aryanKD + raunaqKD + adityaKD)/6
+    newResult = str(gKD)
     if newResult != lastResult:
         #Write New Results
         file1 = open("./lastresult.txt",'w')
         file1.write(str(newResult))
         file1.close()
         #Push New Results to DB
-        val = ("bar", datetime.datetime.now(pytz.timezone('US/Central')), raunaqDMK, aryanDMK, neerajDMK, raunaqKD, aryanKD, neerajKD, oscarKD, akshatKD, adityaKD)
+        val = ("bar", datetime.datetime.now(pytz.timezone('US/Central')), raunaqDMK, aryanDMK, neerajDMK, oscarKMD, akshatKMD, adityaKMD, raunaqKD, aryanKD, neerajKD, oscarKD, akshatKD, adityaKD, gKD)
         cursor.execute(sql, val)
         db.commit()
         change = False
